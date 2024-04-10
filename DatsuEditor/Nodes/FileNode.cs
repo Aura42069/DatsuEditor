@@ -6,6 +6,7 @@
         public string ExportFilter { get; set; }
         public string ReplaceFilter { get; set; }
         public event EventHandler OnReplace;
+        public event EventHandler OnRemove;
         public FileNode(string filename, byte[] filedata) {
             ExportFilter = "All Files (*.*)|*.*";
             ReplaceFilter = "All Files (*.*)|*.*";
@@ -48,6 +49,7 @@
             removeBtn.Click += (sender, args) =>
             {
                 Remove();
+                OnRemove?.Invoke(this, new EventArgs());
             };
             ContextMenuStrip.Items.Add(exportBtn);
             ContextMenuStrip.Items.Add(replaceBtn);

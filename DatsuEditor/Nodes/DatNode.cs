@@ -62,7 +62,27 @@ namespace RMTK.Nodes
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     byte[] data = File.ReadAllBytes(openFileDialog.FileName);
-                    Nodes.Add(new FileNode(Path.GetFileName(openFileDialog.FileName), data));
+                    FileNode node;
+                    string fileName = Path.GetFileName(openFileDialog.FileName);
+                    switch (FormatUtils.DetectFileFormat(data))
+                    {
+                        case MGRFileFormat.DAT:
+                            node = new DatNode(fileName, data, true);
+                            break;
+                        case MGRFileFormat.BXM:
+                            node = new BxmNode(fileName, data);
+                            break;
+                        case MGRFileFormat.WTB:
+                            node = new WtbNode(fileName, data);
+                            break;
+                        case MGRFileFormat.WMB:
+                            node = new WmbNode(fileName, data);
+                            break;
+                        default:
+                            node = new FileNode(fileName, data);
+                            break;
+                    }
+                    Nodes.Add(node);
                     UpdateBinary();
                     OnAdd?.Invoke(this, new EventArgs());
                 }
@@ -117,6 +137,7 @@ namespace RMTK.Nodes
                         break;
                 }
                 node.OnReplace += (s, e) => { UpdateBinary(); };
+                node.OnRemove += (s, e) => { UpdateBinary(); };
                 Nodes.Add(node);
             }
         }
