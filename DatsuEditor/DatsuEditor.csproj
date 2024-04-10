@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>datsu-ed.ico</ApplicationIcon>
+	<PreserveCompilationContext>false</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="datsu-ed.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZanLibrary\ZanLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DatsuIcons.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
