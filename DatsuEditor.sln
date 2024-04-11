@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatsuEditor", "DatsuEditor\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZanLibrary", "ZanLibrary\ZanLibrary.csproj", "{39AF2A7F-E5EF-4474-94FC-C0FE3D574594}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatsuCLI", "DatsuCLI\DatsuCLI.csproj", "{551B60F5-F9B8-4A90-A981-C4FB3A113029}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{39AF2A7F-E5EF-4474-94FC-C0FE3D574594}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39AF2A7F-E5EF-4474-94FC-C0FE3D574594}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39AF2A7F-E5EF-4474-94FC-C0FE3D574594}.Release|Any CPU.Build.0 = Release|Any CPU
+		{551B60F5-F9B8-4A90-A981-C4FB3A113029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{551B60F5-F9B8-4A90-A981-C4FB3A113029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{551B60F5-F9B8-4A90-A981-C4FB3A113029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{551B60F5-F9B8-4A90-A981-C4FB3A113029}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

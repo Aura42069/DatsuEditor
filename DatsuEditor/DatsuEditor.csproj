@@ -8,10 +8,22 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>datsu-ed.ico</ApplicationIcon>
 	<PreserveCompilationContext>false</PreserveCompilationContext>
+	<RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DatsuIcons.dat" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="datsu-ed.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DatsuIcons.dat">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -19,8 +31,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DatsuIcons.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 

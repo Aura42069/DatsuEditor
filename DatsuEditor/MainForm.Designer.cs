@@ -173,6 +173,7 @@
             ExitToolButton.ShortcutKeyDisplayString = "Alt+F4";
             ExitToolButton.Size = new Size(195, 22);
             ExitToolButton.Text = "Exit";
+            ExitToolButton.Click += ExitToolButton_Click;
             // 
             // editToolStripMenuItem
             // 
@@ -241,6 +242,7 @@
             statusStrip1.Items.AddRange(new ToolStripItem[] { StatusMessage });
             statusStrip1.Location = new Point(0, 548);
             statusStrip1.Name = "statusStrip1";
+            statusStrip1.RenderMode = ToolStripRenderMode.Professional;
             statusStrip1.Size = new Size(903, 22);
             statusStrip1.SizingGrip = false;
             statusStrip1.TabIndex = 2;
@@ -250,7 +252,7 @@
             // 
             StatusMessage.Name = "StatusMessage";
             StatusMessage.Overflow = ToolStripItemOverflow.Always;
-            StatusMessage.Size = new Size(857, 17);
+            StatusMessage.Size = new Size(888, 17);
             StatusMessage.Spring = true;
             StatusMessage.Text = "Drag and drop a file to start.";
             // 

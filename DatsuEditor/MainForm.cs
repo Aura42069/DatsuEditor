@@ -1,8 +1,9 @@
+using DatsuEditor;
 using RisingFormats.Dat;
 using RMTK.Nodes;
 using System.Diagnostics;
-using System.IO;
-using System.Runtime.Intrinsics.X86;
+using System.Reflection;
+using System.Text;
 using ZanLibrary;
 
 namespace RMTK
@@ -10,6 +11,7 @@ namespace RMTK
     public partial class MainForm : Form
     {
         TreeNode RootNode;
+        bool IsDarkMode = false;
 
         // Loaded stuff
         public static string LoadedFilePath = "";
@@ -19,13 +21,13 @@ namespace RMTK
         {
             InitializeComponent();
 
-            if (!File.Exists("DatsuIcons.dat"))
-            {
-                MessageBox.Show("No icon files! Your installation is corrupted!", "Fatal Error :pensive:");
-                Close();
-            }
+            Console.WriteLine("I opened the console!!");
 
-            var IconPackage = DatFile.Load(File.ReadAllBytes("DatsuIcons.dat"));
+            var IconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("DatsuEditor.DatsuIcons.dat");
+            byte[] IconBytes = new byte[IconStream.Length];
+            IconStream.ReadExactly(IconBytes, 0, (int)IconStream.Length);
+
+            var IconPackage = DatFile.Load(IconBytes);
 
             Dictionary<string, MemoryStream> IconMap = new();
 
@@ -60,6 +62,33 @@ namespace RMTK
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // vcd
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // brd
             FileTree.ImageList = list;
+
+            if (File.Exists("DatsuConfig.cfg"))
+                LoadConfig();
+            
+            UpdateTheme();
+        }
+
+        void SaveConfig()
+        {
+            StringBuilder configFile = new();
+            configFile.AppendLine("Dark=" + (IsDarkMode == true ? "1" : "0"));
+            File.WriteAllText("DatsuConfig.cfg", configFile.ToString());
+        }
+
+        void LoadConfig()
+        {
+            var lines = File.ReadAllLines("DatsuConfig.cfg");
+            foreach (var line in lines)
+            {
+                string[] split = line.Split('=');
+                switch (split[0])
+                {
+                    case "Dark":
+                        IsDarkMode = split[1] == "1" ? true : false;
+                        return;
+                }
+            }
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -106,14 +135,63 @@ namespace RMTK
 
         private void DarkThemeButton_Click(object sender, EventArgs e)
         {
-            LightThemeButton.Checked = false;
-            DarkThemeButton.Checked = true;
+            IsDarkMode = true;
+            UpdateTheme();
         }
 
         private void LightThemeButton_Click(object sender, EventArgs e)
         {
-            LightThemeButton.Checked = true;
-            DarkThemeButton.Checked = false;
+            IsDarkMode = false;
+            UpdateTheme();
+        }
+
+        void UpdateTheme()
+        {
+            if (IsDarkMode)
+            {
+                LightThemeButton.Checked = false;
+                DarkThemeButton.Checked = true;
+
+                BackColor = ThemeDefines.DarkMode_Lowestground;
+                ForeColor = ThemeDefines.DarkMode_Foreground;
+
+                FileTree.BackColor = ThemeDefines.DarkMode_Background;
+                FileTree.ForeColor = ThemeDefines.DarkMode_Foreground;
+
+                PropertyGrid.ViewBackColor = ThemeDefines.DarkMode_Background;
+
+                menuStrip1.Renderer = new DatsuDarkRenderer(new DatsuDarkColorTable());
+                menuStrip1.BackColor = ThemeDefines.DarkMode_Lowestground;
+                menuStrip1.ForeColor = ThemeDefines.DarkMode_Foreground;
+
+                statusStrip1.BackColor = ThemeDefines.DarkMode_Background;
+                statusStrip1.ForeColor = ThemeDefines.DarkMode_Foreground;
+
+                ImmersiveWindow.ToggleWindowDark(Handle, true);
+            }
+            else
+            {
+                LightThemeButton.Checked = true;
+                DarkThemeButton.Checked = false;
+
+                BackColor = SystemColors.Control;
+                ForeColor = SystemColors.ControlText;
+
+                FileTree.BackColor = SystemColors.Window;
+                FileTree.ForeColor = SystemColors.ControlText;
+
+                PropertyGrid.ViewBackColor = SystemColors.Window;
+
+                menuStrip1.Renderer = new ToolStripProfessionalRenderer();
+                menuStrip1.BackColor = SystemColors.Control;
+                menuStrip1.ForeColor = SystemColors.ControlText;
+
+                statusStrip1.BackColor = SystemColors.Control;
+                statusStrip1.ForeColor = SystemColors.ControlText;
+
+                ImmersiveWindow.ToggleWindowDark(Handle, false);
+            }
+            SaveConfig();
         }
 
         private void AboutButton_Click(object sender, EventArgs e)
@@ -144,6 +222,11 @@ namespace RMTK
         private void OpenFileButton_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void ExitToolButton_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

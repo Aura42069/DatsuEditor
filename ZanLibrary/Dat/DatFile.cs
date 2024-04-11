@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO.Hashing;
 using System.Text;
 using System.Xml.Linq;
@@ -15,7 +15,8 @@ namespace RisingFormats.Dat
         public uint SizesOffset;
         public uint HashMapOffset;
     }
-    public struct DatFileEntry {
+    public struct DatFileEntry
+    {
         public string Name;
         public byte[] Data;
 
@@ -28,10 +29,10 @@ namespace RisingFormats.Dat
     public struct DatHashData
     {
         public int PrehashShift;
-        public int BucketOffsetsSize;
-        public List<short> BucketOffsets;
+        public uint BucketOffsetsSize;
+        public List<ushort> BucketOffsets;
         public List<int> Hashes;
-        public List<short> Indices;
+        public List<ushort> Indices;
         public uint BucketOffsetsOffset;
         public uint HashesOffset;
         public uint IndicesOffset;
@@ -90,7 +91,7 @@ namespace RisingFormats.Dat
 
             header.FileAmount = (uint)Files.Length;
 
-            int EntrySize = 0;
+            int LongestFilename = 0;
 
             List<int> offsets = new();
             List<int> sizes = new();
@@ -99,28 +100,28 @@ namespace RisingFormats.Dat
 
             foreach (DatFileEntry file in Files)
             {
-                if (EntrySize < file.Name.Length)
-                    EntrySize = file.Name.Length;
+                if (LongestFilename < file.Name.Length)
+                    LongestFilename = file.Name.Length;
 
                 sizes.Add(file.Data.Length);
                 extensions.Add(Path.GetExtension(file.Name).Substring(1));
                 names.Add(file.Name);
             }
 
-            EntrySize += 1;
+            LongestFilename += 1;
 
             header.PositionsOffset = 0x20;
-            header.ExtensionsOffset = header.PositionsOffset + (4 * header.FileAmount);
+            header.ExtensionsOffset = 0x20 + (4 * header.FileAmount);
             header.NamesOffset = header.ExtensionsOffset + (4 * header.FileAmount);
-            header.SizesOffset = (uint)(header.NamesOffset + (EntrySize * header.FileAmount) + 4);
-            header.HashMapOffset = header.SizesOffset + (4*header.FileAmount);
+            header.SizesOffset = (uint)(header.NamesOffset + (LongestFilename * header.FileAmount) + 4);
+            header.HashMapOffset = header.SizesOffset + (4 * header.FileAmount);
 
             DatHashData hashData = DatHashUtil.GenerateHashData(Files);
 
             int TempPos = (int)(header.HashMapOffset + hashData.IndicesOffset + (2 * header.FileAmount));
-            int startpad = BinUtils.CalcPadding(16,TempPos);
+            int startpad = BinUtils.CalcPadding(16, TempPos);
 
-            int _pointer = TempPos+ startpad;
+            int _pointer = TempPos + startpad;
 
             foreach (var file in Files)
             {
@@ -144,44 +145,47 @@ namespace RisingFormats.Dat
             FileData.WriteUInt32(header.HashMapOffset);
             FileData.WriteUInt32(0);
 
+            FileData.Seek(header.PositionsOffset);
             for (int i = 0; i < header.FileAmount; i++)
                 FileData.WriteUInt32((uint)offsets[i]);
 
+            FileData.Seek(header.ExtensionsOffset);
             for (int i = 0; i < header.FileAmount; i++)
             {
                 FileData.WriteString(extensions[i]);
                 FileData.WriteByte(0x00);
             }
 
-            FileData.WriteInt32(EntrySize);
+            FileData.Seek(header.NamesOffset);
+            FileData.WriteInt32(LongestFilename);
 
             for (int i = 0; i < header.FileAmount; i++)
             {
-                FileData.WriteString(names[i], EntrySize);
+                FileData.WriteString(names[i], LongestFilename);
                 // FileData.WriteByte(0x00);
             }
 
             FileData.Seek(header.SizesOffset);
-
             for (int i = 0; i < header.FileAmount; i++)
                 FileData.WriteUInt32((uint)sizes[i]);
 
             /*
              * Hashes :sob::sob::sob::sob::sob:
              */
+            FileData.Seek(header.HashMapOffset);
             FileData.WriteInt32(hashData.PrehashShift);
             FileData.WriteInt32(16);
             FileData.WriteInt32(16 + hashData.BucketOffsets.Count * 2);
             FileData.WriteInt32(16 + (hashData.BucketOffsets.Count * 2) + (hashData.Hashes.Count * 4));
 
             for (int i = 0; i < hashData.BucketOffsets.Count; i++)
-                FileData.WriteInt16(hashData.BucketOffsets[i]);
+                FileData.WriteUInt16(hashData.BucketOffsets[i]);
 
             for (int i = 0; i < header.FileAmount; i++)
                 FileData.WriteInt32(hashData.Hashes[i]);
 
             for (int i = 0; i < header.FileAmount; i++)
-                FileData.WriteInt32(hashData.Indices[i]);
+                FileData.WriteUInt16(hashData.Indices[i]);
 
             int hashPad = (int)BinUtils.CalcPadding(16, (uint)FileData.Tell());
             for (int i = 0; i < hashPad; i++)
@@ -201,9 +205,11 @@ namespace RisingFormats.Dat
                 FileData.WriteByteArray(Files[i].Data);
             }
 
-            int finalPadding = (int)BinUtils.CalcPadding(4096, (uint)FileData.Tell());
-            for (int i = 0; i < finalPadding; i++)
-                FileData.WriteByte(0x00);
+            //for (int i = 0; i < names.Count; i++)
+            //{
+            //    uint search = (Crc32.HashToUInt32(Encoding.ASCII.GetBytes(names[i].ToLower())) & ~0x80000000) >> hashData.PrehashShift;
+            //    Console.WriteLine($"Exp: {names[i]}\tOut: {names[hashData.Indices[hashData.BucketOffsets[(int)search]]]}");
+            //}
 
             return FileData.GetArray();
         }
@@ -308,7 +314,8 @@ namespace RisingFormats.Dat
     //        return hashdata;
     //    }
     //}
-    public class DatHashUtil {
+    public class DatHashUtil
+    {
         static int CalculateShift(int FileAmount)
         {
             for (int i = 0; i < 31; i++)
@@ -319,8 +326,8 @@ namespace RisingFormats.Dat
         struct NameIndexHash
         {
             public string Filename;
-            public int Index;
-            public uint Crc32Hash;
+            public ushort Index;
+            public int Crc32Hash;
         };
         public static DatHashData GenerateHashData(DatFileEntry[] Files)
         {
@@ -330,20 +337,22 @@ namespace RisingFormats.Dat
 
             HashData.BucketOffsets = new();
 
-            for (int i = 0; i < 1 << 31 - HashData.PrehashShift; i++)
+            for (int i = 0; i < 1 << (31 - HashData.PrehashShift); i++)
             {
-                HashData.BucketOffsets.Add(-1);
+                HashData.BucketOffsets.Add(0xFFFF);
             }
 
             List<NameIndexHash> NIH = new();
-            for (int i = 0; i < Files.Length; i++)
+            for (ushort i = 0; i < Files.Length; i++)
             {
-                NIH.Add(new NameIndexHash
+                var entry = new NameIndexHash
                 {
                     Filename = Files[i].Name,
                     Index = i,
-                    Crc32Hash = Crc32.HashToUInt32(Encoding.ASCII.GetBytes(Files[i].Name.ToLower())) & ~0x80000000
-                });
+                    Crc32Hash = (int)(Crc32.HashToUInt32(Encoding.ASCII.GetBytes(Files[i].Name.ToLower())) & ~0x80000000)
+                };
+                NIH.Add(entry);
+                Console.WriteLine($"{Path.GetFileName(entry.Filename).PadLeft(64)}  |  {entry.Index}  |  {entry.Crc32Hash}");
             }
 
             NIH.OrderBy((x) => x.Crc32Hash >> HashData.PrehashShift);
@@ -353,19 +362,19 @@ namespace RisingFormats.Dat
 
             foreach (var hash in NIH)
             {
-                HashData.Hashes.Add((int)hash.Crc32Hash);
+                HashData.Hashes.Add(hash.Crc32Hash);
             }
 
             HashData.Hashes.OrderBy((x) => x >> HashData.PrehashShift);
 
             for (int i = 0; i < NIH.Count; i++)
             {
-                if (HashData.BucketOffsets[(int)NIH[i].Crc32Hash >> HashData.PrehashShift] == -1)
-                    HashData.BucketOffsets[(int)NIH[i].Crc32Hash >> HashData.PrehashShift] = (short)i;
-                HashData.Indices.Add((short)NIH[i].Index);
+                if (HashData.BucketOffsets[NIH[i].Crc32Hash >> HashData.PrehashShift] == 0xFFFF)
+                    HashData.BucketOffsets[NIH[i].Crc32Hash >> HashData.PrehashShift] = (ushort)i;
+                HashData.Indices.Add(NIH[i].Index);
             }
 
-            HashData.BucketOffsetsSize = HashData.BucketOffsets.Count * 2;
+            HashData.BucketOffsetsSize = (uint)HashData.BucketOffsets.Count * 2;
 
             return HashData;
         }
