@@ -5,6 +5,10 @@ A general-purpose, all-in-one modding tool for Metal Gear Rising: Revengeance.
 Because I dislike with having to repack multiple folders, having 50 folders of unpacked Raiden files, and all that.
 That's why this editor does all it's edits directly in RAM, without touching your drive at all. (Except for .dat saving part)
 
+# Requirments
+Windows: .NET 8.0 Desktop Runtime
+Linux: idk
+
 # What can this editor do already?
 - Edit .dat files directly.
 - Edit nested .dat files, without having to unpack all of them.
@@ -12,7 +16,7 @@ That's why this editor does all it's edits directly in RAM, without touching you
 
 # Supported file formats
 |Extension|Recognized|Editable|Readable|Icon|
-|--------:|:--------:|:------:|:------:|:--:|
+|:-------:|:--------:|:------:|:------:|:--:|
 |DAT      |✅       |✅     |✅      |Archive|
 |BXM      |✅       |❌     |❌      |Gear|
 |WTB      |✅       |❌     |❌      |Picture Stack|
@@ -37,5 +41,3 @@ That's why this editor does all it's edits directly in RAM, without touching you
 |BRD      |❌       |❌     |❌      |???|
 |MCD      |❌       |❌     |❌      |Letter|
 
-# Known bugs
-- Repacking of big animation archives (bosses, pl0010.dat, etc.)

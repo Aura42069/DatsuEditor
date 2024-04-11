@@ -21,8 +21,6 @@ namespace RMTK
         {
             InitializeComponent();
 
-            Console.WriteLine("I opened the console!!");
-
             var IconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("DatsuEditor.DatsuIcons.dat");
             byte[] IconBytes = new byte[IconStream.Length];
             IconStream.ReadExactly(IconBytes, 0, (int)IconStream.Length);
@@ -61,11 +59,12 @@ namespace RMTK
             list.Images.Add(Image.FromStream(IconMap["wem.png"]));
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // vcd
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // brd
+            list.Images.Add(Image.FromStream(IconMap["unk.png"])); // mcd
             FileTree.ImageList = list;
 
             if (File.Exists("DatsuConfig.cfg"))
                 LoadConfig();
-            
+
             UpdateTheme();
         }
 
@@ -99,12 +98,11 @@ namespace RMTK
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Copy | DragDropEffects.Move;
-            TryLoadFile(e.Data.GetData(DataFormats.FileDrop));
+            TryLoadFile(((string[])e.Data.GetData(DataFormats.FileDrop))[0]);
         }
 
-        private void TryLoadFile(object Data)
+        private void TryLoadFile(string path)
         {
-            string path = ((string[])Data)[0];
             string filename = Path.GetFileName(path);
             byte[] data = File.ReadAllBytes(path);
 
@@ -221,12 +219,31 @@ namespace RMTK
 
         private void OpenFileButton_Click(object sender, EventArgs e)
         {
-
+            OpenFileDialog ofd = new();
+            ofd.Filter = "DAT Files (*.dat)|*.dat";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                TryLoadFile(ofd.FileName);
+            }
         }
 
         private void ExitToolButton_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new();
+            sfd.Filter = "DAT Files (*.dat)|*.dat";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                List<DatFileEntry> files = new();
+                foreach (FileNode node in FileTree.Nodes[0].Nodes)
+                    files.Add(new(node.Text, node.Data));
+                File.WriteAllBytes(sfd.FileName, DatFile.Save(files.ToArray()));
+                LoadedFilePath = sfd.FileName;
+            }
         }
     }
 }

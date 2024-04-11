@@ -36,6 +36,7 @@
             tabPage1 = new TabPage();
             tabPage2 = new TabPage();
             richTextBox2 = new RichTextBox();
+            label2 = new Label();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             tabPage2.SuspendLayout();
@@ -120,11 +121,22 @@
             richTextBox2.TabIndex = 0;
             richTextBox2.Text = resources.GetString("richTextBox2.Text");
             // 
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            label2.AutoSize = true;
+            label2.Location = new Point(12, 247);
+            label2.Name = "label2";
+            label2.Size = new Size(44, 15);
+            label2.TabIndex = 4;
+            label2.Text = "ver. 0.1";
+            // 
             // AboutDialog
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(401, 273);
+            Controls.Add(label2);
             Controls.Add(tabControl1);
             Controls.Add(button1);
             Controls.Add(label1);
@@ -135,6 +147,7 @@
             tabPage1.ResumeLayout(false);
             tabPage2.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -146,5 +159,6 @@
         private TabPage tabPage1;
         private TabPage tabPage2;
         private RichTextBox richTextBox2;
+        private Label label2;
     }
 }

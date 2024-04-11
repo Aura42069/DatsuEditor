@@ -41,9 +41,6 @@
             closeToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             ExitToolButton = new ToolStripMenuItem();
-            editToolStripMenuItem = new ToolStripMenuItem();
-            undoToolStripMenuItem = new ToolStripMenuItem();
-            redoToolStripMenuItem = new ToolStripMenuItem();
             optionsToolStripMenuItem = new ToolStripMenuItem();
             themeToolStripMenuItem = new ToolStripMenuItem();
             LightThemeButton = new ToolStripMenuItem();
@@ -117,7 +114,7 @@
             // menuStrip1
             // 
             menuStrip1.BackColor = SystemColors.Control;
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, optionsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, optionsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(903, 24);
@@ -153,6 +150,7 @@
             saveAsToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+S";
             saveAsToolStripMenuItem.Size = new Size(195, 22);
             saveAsToolStripMenuItem.Text = "Save As...";
+            saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
             // 
             // closeToolStripMenuItem
             // 
@@ -175,25 +173,6 @@
             ExitToolButton.Text = "Exit";
             ExitToolButton.Click += ExitToolButton_Click;
             // 
-            // editToolStripMenuItem
-            // 
-            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoToolStripMenuItem, redoToolStripMenuItem });
-            editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(39, 20);
-            editToolStripMenuItem.Text = "Edit";
-            // 
-            // undoToolStripMenuItem
-            // 
-            undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-            undoToolStripMenuItem.Size = new Size(103, 22);
-            undoToolStripMenuItem.Text = "Undo";
-            // 
-            // redoToolStripMenuItem
-            // 
-            redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-            redoToolStripMenuItem.Size = new Size(103, 22);
-            redoToolStripMenuItem.Text = "Redo";
-            // 
             // optionsToolStripMenuItem
             // 
             optionsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { themeToolStripMenuItem });
@@ -205,7 +184,7 @@
             // 
             themeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { LightThemeButton, DarkThemeButton });
             themeToolStripMenuItem.Name = "themeToolStripMenuItem";
-            themeToolStripMenuItem.Size = new Size(110, 22);
+            themeToolStripMenuItem.Size = new Size(180, 22);
             themeToolStripMenuItem.Text = "Theme";
             // 
             // LightThemeButton
@@ -294,7 +273,6 @@
         private PropertyGrid PropertyGrid;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem optionsToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem OpenFileButton;
@@ -307,8 +285,6 @@
         private ToolStripMenuItem DarkThemeButton;
         private ToolStripMenuItem AboutButton;
         private ToolStripSeparator toolStripSeparator1;
-        private ToolStripMenuItem undoToolStripMenuItem;
-        private ToolStripMenuItem redoToolStripMenuItem;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel StatusMessage;
     }
