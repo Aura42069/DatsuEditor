@@ -67,15 +67,17 @@
             richTextBox1.BackColor = SystemColors.ControlLightLight;
             richTextBox1.BorderStyle = BorderStyle.None;
             richTextBox1.Dock = DockStyle.Fill;
+            richTextBox1.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
             richTextBox1.Location = new Point(3, 3);
             richTextBox1.Name = "richTextBox1";
             richTextBox1.ReadOnly = true;
             richTextBox1.Size = new Size(363, 167);
             richTextBox1.TabIndex = 2;
-            richTextBox1.Text = "Aura - ZanLibrary + DatsuEditor (format parsing)\nKwasior - Format Structs (kwastools/kwaslib https://github.com/ThisKwasior/KwasTools)\nSomeGuyWhoPlaysMGR - LY2 Icon Idea\nbonefulDelight - MOT Icon Idea";
+            richTextBox1.Text = resources.GetString("richTextBox1.Text");
             // 
             // tabControl1
             // 
+            tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Location = new Point(12, 32);
@@ -126,7 +128,6 @@
             Controls.Add(tabControl1);
             Controls.Add(button1);
             Controls.Add(label1);
-            FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "AboutDialog";
             Text = "About";

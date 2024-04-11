@@ -29,13 +29,10 @@ namespace RisingFormats.Dat
     public struct DatHashData
     {
         public int PrehashShift;
-        public uint BucketOffsetsSize;
-        public List<ushort> BucketOffsets;
+        public List<short> BucketOffsets;
         public List<int> Hashes;
-        public List<ushort> Indices;
-        public uint BucketOffsetsOffset;
-        public uint HashesOffset;
-        public uint IndicesOffset;
+        public List<short> Indices;
+        public int StructSize;
     }
 
     public class DatFile
@@ -118,7 +115,7 @@ namespace RisingFormats.Dat
 
             DatHashData hashData = DatHashUtil.GenerateHashData(Files);
 
-            int TempPos = (int)(header.HashMapOffset + hashData.IndicesOffset + (2 * header.FileAmount));
+            int TempPos = (int)(header.HashMapOffset + hashData.StructSize + (2 * header.FileAmount));
             int startpad = BinUtils.CalcPadding(16, TempPos);
 
             int _pointer = TempPos + startpad;
@@ -179,13 +176,13 @@ namespace RisingFormats.Dat
             FileData.WriteInt32(16 + (hashData.BucketOffsets.Count * 2) + (hashData.Hashes.Count * 4));
 
             for (int i = 0; i < hashData.BucketOffsets.Count; i++)
-                FileData.WriteUInt16(hashData.BucketOffsets[i]);
+                FileData.WriteInt16(hashData.BucketOffsets[i]);
 
             for (int i = 0; i < header.FileAmount; i++)
                 FileData.WriteInt32(hashData.Hashes[i]);
 
             for (int i = 0; i < header.FileAmount; i++)
-                FileData.WriteUInt16(hashData.Indices[i]);
+                FileData.WriteInt16(hashData.Indices[i]);
 
             int hashPad = (int)BinUtils.CalcPadding(16, (uint)FileData.Tell());
             for (int i = 0; i < hashPad; i++)
@@ -214,169 +211,40 @@ namespace RisingFormats.Dat
             return FileData.GetArray();
         }
     }
-
-    // Taken and rewritten from here
-    // https://github.com/ThisKwasior/KwasTools/blob/master/kwaslib/platinum/dat.c#L330
-    //public class DatHashUtil
-    //{
-    //    static uint BitCount(uint value)
-    //    {
-    //        uint count = 0;
-
-    //        while (value > 0)
-    //        {
-    //            count += 1;
-    //            value >>= 1;
-    //        }
-
-    //        return count;
-    //    }
-
-    //    static uint NextPowOf2Bits(uint value)
-    //    {
-    //        if (value == 0)
-    //            return 1;
-
-    //        /*
-    //            MGRR has this wrong with 1 or 2 files 
-    //            And it breaks on larget values for some reason, 1378 for example.
-    //        */
-    //        if (value == 1 || value == 2)
-    //            return 2;
-
-    //        return BitCount(value - 1);
-    //    }
-    //    static uint CalcPrehashShift(uint value)
-    //    {
-    //        uint max_prehash = 31;
-    //        uint calc_prehash = 32 - NextPowOf2Bits(value);
-    //        return (max_prehash > calc_prehash) ? calc_prehash : max_prehash;
-    //    }
-
-    //    // Why isn't CRC32 included in base .NET :sob:
-    //    static uint HashFilename(string name)
-    //    {
-    //     return System.IO.Hashing.Crc32.HashToUInt32(Encoding.ASCII.GetBytes(name)) & 0x7FFFFFFF;
-    //    }
-
-    //    static ushort[] GenBucketList(uint files_amount, ushort[] bucket_offsets, uint[] hashes, uint prehash_shift)
-    //    {
-    //        ushort[] _bucket_offsets = new ushort[bucket_offsets.Length];
-
-    //     for(uint i = 0; i != files_amount; ++i)
-    //     {
-    //      uint bucket_off_id = hashes[i] >> (int)prehash_shift;
-
-    //      if(bucket_offsets[bucket_off_id] == 0xFFFF)
-    //       _bucket_offsets[bucket_off_id] = (ushort)i;
-    //        }
-    //        return _bucket_offsets;
-    //    }
-
-
-    //    public static DatHashData GenerateHashData(DatFileEntry[] Files)
-    //    {
-    //        var hashdata = new DatHashData();
-
-    //        hashdata.PrehashShift = (int)CalcPrehashShift((uint)Files.Length);
-    //        hashdata.BucketOffsetsSize = 1 << (31 - hashdata.PrehashShift);
-
-    //        hashdata.BucketOffsets = new ushort[Files.Length];
-    //        hashdata.Hashes = new uint[Files.Length];
-    //        hashdata.Indices = new ushort[Files.Length];
-
-    //        for (int i = 0; i < hashdata.BucketOffsetsSize; i++)
-    //        {
-    //            hashdata.BucketOffsets[i] = 0xFF;
-    //        }
-
-    //        /* Hash filenames */
-    //        for (uint i = 0; i != Files.Length; ++i)
-    //        {
-    //            hashdata.Hashes[i] = HashFilename(Files.ElementAt(new Index((int)i)).Name);
-    //            hashdata.Indices[i] = (ushort)i;
-    //        }
-
-    //        // What if I remove this step?
-    //        /* Sort by hash nibbles */
-    //        // SortHashes(hashdata.Hashes, hashdata.Indices, Files.Count);
-    //        // hashdata.Hashes.ToList().Sort();
-    //        hashdata.Hashes.ToList().OrderBy((x) => x >> hashdata.PrehashShift);
-
-    //        /* Generating bucket list */
-    //        hashdata.BucketOffsets = GenBucketList((uint)Files.Length, hashdata.BucketOffsets, hashdata.Hashes, (uint)hashdata.PrehashShift);
-
-    //        /* Set offset variables */
-    //        hashdata.BucketOffsetsOffset = 0x10; /* Constant */
-    //        hashdata.HashesOffset = (uint)(hashdata.BucketOffsetsOffset + hashdata.BucketOffsetsSize * 2);
-    //        hashdata.IndicesOffset = (uint)(hashdata.HashesOffset + Files.Length * 4);
-
-    //        return hashdata;
-    //    }
-    //}
     public class DatHashUtil
     {
-        static int CalculateShift(int FileAmount)
-        {
-            for (int i = 0; i < 31; i++)
-                if (1 << i >= FileAmount)
-                    return 31 - i;
-            return 0;
-        }
         struct NameIndexHash
         {
             public string Filename;
             public ushort Index;
             public int Crc32Hash;
         };
+
+        // https://github.com/Petrarca181/MAMMT/blob/master/MAMMT/Workers/0_Dat_Repacktor.cs
         public static DatHashData GenerateHashData(DatFileEntry[] Files)
         {
-            DatHashData HashData = new();
+            var FileAmountLength = (int)Math.Log(Files.Length, 2) + 1;
+            var PrehashShift = Math.Min(31, 32 - FileAmountLength);
+            var BucketSize = 1 << 31 - PrehashShift;
+            var BucketOffsets = Enumerable.Repeat((short)-1, BucketSize).ToList();
 
-            HashData.PrehashShift = CalculateShift(Files.Length);
+            var hashTuple = Files
+                .Select((t, i) => ((int)(Crc32.HashToUInt32(Encoding.ASCII.GetBytes(t.Name.ToLower())) & 0x7FFFFFFF), (short)i))
+                .OrderBy(x => x.Item1 >> PrehashShift)
+                .ToList();
 
-            HashData.BucketOffsets = new();
+            for (var i = 0; i < Files.Length; i++)
+                if (BucketOffsets[hashTuple[i].Item1 >> PrehashShift] == -1)
+                    BucketOffsets[hashTuple[i].Item1 >> PrehashShift] = (short)i;
 
-            for (int i = 0; i < 1 << (31 - HashData.PrehashShift); i++)
+            return new DatHashData
             {
-                HashData.BucketOffsets.Add(0xFFFF);
-            }
-
-            List<NameIndexHash> NIH = new();
-            for (ushort i = 0; i < Files.Length; i++)
-            {
-                var entry = new NameIndexHash
-                {
-                    Filename = Files[i].Name,
-                    Index = i,
-                    Crc32Hash = (int)(Crc32.HashToUInt32(Encoding.ASCII.GetBytes(Files[i].Name.ToLower())) & ~0x80000000)
-                };
-                NIH.Add(entry);
-                Console.WriteLine($"{Path.GetFileName(entry.Filename).PadLeft(64)}  |  {entry.Index}  |  {entry.Crc32Hash}");
-            }
-
-            NIH.OrderBy((x) => x.Crc32Hash >> HashData.PrehashShift);
-
-            HashData.Hashes = new();
-            HashData.Indices = new();
-
-            foreach (var hash in NIH)
-            {
-                HashData.Hashes.Add(hash.Crc32Hash);
-            }
-
-            HashData.Hashes.OrderBy((x) => x >> HashData.PrehashShift);
-
-            for (int i = 0; i < NIH.Count; i++)
-            {
-                if (HashData.BucketOffsets[NIH[i].Crc32Hash >> HashData.PrehashShift] == 0xFFFF)
-                    HashData.BucketOffsets[NIH[i].Crc32Hash >> HashData.PrehashShift] = (ushort)i;
-                HashData.Indices.Add(NIH[i].Index);
-            }
-
-            HashData.BucketOffsetsSize = (uint)HashData.BucketOffsets.Count * 2;
-
-            return HashData;
+                PrehashShift = PrehashShift,
+                BucketOffsets = BucketOffsets,
+                Hashes = hashTuple.Select(x => x.Item1).ToList(),
+                Indices = hashTuple.Select(x => x.Item2).ToList(),
+                StructSize = 4 + 2 * BucketOffsets.Count + 4 * hashTuple.Count + 2 * hashTuple.Count
+            };
         }
     }
 }

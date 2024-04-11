@@ -117,6 +117,30 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="richTextBox1.Text" xml:space="preserve">
+    <value>Aura:
+- ZanLibrary, DatsuEditor, Icon Desings
+Kwasior:
+- Format Structs (kwastools/kwaslib https://github.com/ThisKwasior/KwasTools)
+SomeGuyWhoPlaysMGR:
+- LY2 Icon Idea
+- MCD Icon Idea
+bonefulDelight:
+- MOT Icon Idea
+Zamndatsu:
+- SCR Icon Idea
+- Testing High-DPI Awareness
+Jacky720:
+- Cleaning my .dat writer code
+Frouk3:
+- Reverse Engineering .trg file format
+- .trg Editor source code
+xxk-i:
+- DATrepacker that hash generation in here bases off: https://github.com/xxk-i/DATrepacker
+
+You, for using this,
+And the rest MGRR Modding server for giving me motivation to work on this!</value>
+  </data>
   <data name="richTextBox2.Text" xml:space="preserve">
     <value>The GNU General Public License (GPL-2.0)
 Version 2, June 1991
